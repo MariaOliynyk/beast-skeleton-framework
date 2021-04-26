@@ -4,9 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>e2e-acceptance-tests</artifactId>
-    <groupId>work.rustam</groupId>
-    <version>1.0.0</version>
+    <artifactId>acceptance-tests</artifactId>
+
+    <parent>
+        <artifactId>framework-skeleton</artifactId>
+        <groupId>com.work.qa</groupId>
+        <version>${revision}</version>
+    </parent>
 
     <properties>
         <java.version>8</java.version>
@@ -19,25 +23,22 @@
         <lombok.version>1.18.8</lombok.version>
         <logback.version>1.1.3</logback.version>
         <aspectj.version>1.9.4</aspectj.version>
-        <allure.version>2.12.1</allure.version>
+        <allure.version>2.13.5</allure.version>
         <allure.maven.version>2.10.0</allure.maven.version>
         <maven.resources.version>3.1.0</maven.resources.version>
         <maven.failsafe.version>2.22.2</maven.failsafe.version>
         <jackson.version>2.10.0</jackson.version>
-        <sysout-over-slf4j.version>1.0.2</sysout-over-slf4j.version>
-
+        <taf.version>1.0.0</taf.version>
         <run.classes>**/RunAcceptanceTests.class</run.classes>
     </properties>
 
     <dependencies>
         <!--Modules of TAF-->
         <dependency>
-            <groupId>work.rustam</groupId>
+            <groupId>com.work.qa</groupId>
             <artifactId>taf-common</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
-
-
         <!--Aspectj-->
         <dependency>
             <groupId>org.aspectj</groupId>
@@ -56,11 +57,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.org.lidalia</groupId>
-            <artifactId>sysout-over-slf4j</artifactId>
-            <version>${sysout-over-slf4j.version}</version>
         </dependency>
         <!--TestNG-->
         <!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-testng -->
@@ -103,6 +99,14 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
         <!--Cucumber-->
         <dependency>
             <groupId>io.cucumber</groupId>
@@ -132,12 +136,6 @@
             <artifactId>allure-cucumber4-jvm</artifactId>
             <version>${allure.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-selenide -->
-        <dependency>
-            <groupId>io.qameta.allure</groupId>
-            <artifactId>allure-selenide</artifactId>
-            <version>${allure.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-assertj -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
@@ -150,7 +148,20 @@
             <artifactId>maven-resources-plugin</artifactId>
             <version>${maven.resources.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <profiles>
         <profile>
             <id>dev</id>
@@ -172,7 +183,18 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
         </profile>
+        <profile>
+            <id>staging</id>
+            <properties>
+                <run.class>**/RunAcceptanceTests.class</run.class>
+                <app_env>staging</app_env>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
     </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -180,19 +202,22 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.failsafe.version}</version>
                 <configuration>
-                    <testFailureIgnore>false</testFailureIgnore>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <testFailureIgnore>true</testFailureIgnore>
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
                     </argLine>
                     <properties>
                         <property>
                             <name>dataproviderthreadcount</name>
-                            <value>3</value>
+                            <value>1</value>
                         </property>
                     </properties>
-                    <includes>
-                        <include>${run.classes}</include>
-                    </includes>
+                    <!--                                        <includes>-->
+                    <!--                                            <include>${run.classes}</include>-->
+                    <!--                                        </includes>-->
                     <environmentVariables>
                         <app_env>${app_env}</app_env>
                     </environmentVariables>

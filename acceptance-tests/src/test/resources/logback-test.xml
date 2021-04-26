@@ -22,10 +22,11 @@
         </encoder>
     </appender>
 
-    <logger name="work.rustam.common" level="INFO"/>
+    <logger name="com.work.qa.common" level="INFO"/>
     <logger name="io.restassured" level="INFO"/>
     <logger name="org.springframework" level="WARN"/>
     <logger name="io.cucumber" level="INFO"/>
+    <logger name="io.qameta.allure.AllureLifecycle" level="OFF"/>
 
     <root level="INFO">
         <appender-ref ref="FILE"/>
